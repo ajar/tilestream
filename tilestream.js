@@ -159,6 +159,7 @@ const Tilestream = {
         Tilestream.properties.rowImgMax = Tilestream.settings._rowImgMax;
         Tilestream.properties.rowRatioMax = Tilestream.settings._rowRatioMax;
         var tileCount = Tilestream.properties.objectCount(Tilestream.tiles);
+        var loadCount = 0
         var divQueue = document.createElement('div');
         var target = Tilestream.settings._target;
         var stream = document.createElement('div');
@@ -178,6 +179,14 @@ const Tilestream = {
             element.alt = tile.alt;
             element.setAttribute('style', 'width:100%');
             divQueue.appendChild(element);
+            element.onload = function() {
+                loadCount++
+                if (loadCount == tileCount) {
+                    Tilestream.sizeListener();
+                    Tilestream.compile();
+                    Tilestream.modal();
+                }
+            }
         };
         console.log('queue finished');
     },
@@ -560,15 +569,6 @@ const Tilestream = {
             modal.style.display = 'none';
         };
     },
-    ratioCalc : async function(element){
-        if (element.complete){
-            return element.naturalWidth / element.naturalHeight;
-        } else {
-            await element.addEventListener('load', function(){
-                return element.naturalWidth / element.naturalHeight;
-            });
-        };
-    },
 };
 
 const tile1 = new Tilestream.Tile('demo_tiles/axon_4-fx1.778.png', 'This Is A Very Long Title For Testing');
@@ -594,12 +594,6 @@ const tile20 = new Tilestream.Tile('demo_tiles/axon_22-fx1.778.gif', 'test');
 
 Tilestream.autoQueue();
 
-window.onload = function(){
-    Tilestream.sizeListener();
-    Tilestream.compile();
-    Tilestream.modal();
-    window.onresize = function(){
-        Tilestream.reset();
-    };
-    console.log(Tilestream.tilerows);
+window.onresize = function(){
+    Tilestream.reset();
 };
